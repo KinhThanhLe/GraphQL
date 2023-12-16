@@ -7,7 +7,7 @@ const resolvers = {
     book: (parent, args) => books.find(book => book.id.toString() === args.id),
     authors: () => authors,
     author: (parent, args) => authors.find(author => author.id.toString() === args.id),
-
+    bookSearch: (parent, args) => books.filter(book => book.name.toLowerCase().includes(args.name.toLowerCase()))
 
   },
   Book: {
