@@ -2,8 +2,8 @@
 .App {
   text-align: center;
   font-family: Arial, sans-serif;
-  margin-top: 50px;
   width: 1460px;
+  height: 100%;
 }
 
 input {

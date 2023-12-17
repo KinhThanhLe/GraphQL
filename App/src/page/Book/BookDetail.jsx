@@ -17,6 +17,11 @@ const BookDetail = () => {
       <p>Thể loại: {book.genre}</p>
       <p>Năm xuất bản: {book.publicationYear}</p>
       <p>Tác giả: <Link to={`/author/${book.author.id}`}>{book.author.name}</Link></p>
+      <Link to="/book" >
+        <button type="button" style={{ marginTop: 50 }}>
+          Trở về danh sách
+        </button>
+      </Link>
     </div>
   );
 };

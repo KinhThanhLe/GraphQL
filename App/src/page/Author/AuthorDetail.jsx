@@ -31,7 +31,13 @@ const AuthorDetail = () => {
           </Link>
         ))}
       </ul>
+      <Link to="/book" >
+        <button type="button" style={{ marginTop: 50 }}>
+          Trở về danh sách
+        </button>
+      </Link>
     </div>
+
   );
 };
 
