@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation } from '@apollo/client'
 import { getBooks, searchBookByName, getAuthors } from '../../graphql-client/queries.js'
-import { addSingleBook } from '../../graphql-client/mutations'
+import { addSingleBook, addSingleAuthor } from '../../graphql-client/mutations'
 
 const BookListPage = () => {
   const [books, setBooks] = useState([]);
@@ -99,6 +99,8 @@ const BookListPage = () => {
   const handleAuthorSubmit = (e) => {
     e.preventDefault();
     // Xử lý thêm tác giả vào danh sách tác giả
+    const { name } = newAuthorData;
+    const age = parseInt(newAuthorData.age, 10)
     const newAuthor = {
       id: books.length + 1, // Đây là id tạm thời, bạn có thể tạo id theo cách khác
       ...newAuthorData,
@@ -109,7 +111,12 @@ const BookListPage = () => {
       name: '',
       birthYear: '',
     });
+    addAuthor({
+      variables: { author: { name, age } },
+      refetchQueries: [{ query: getAuthors }]
+    })
   };
+  const [addAuthor, dataMutationAuthor] = useMutation(addSingleAuthor)
 
 
   return (
@@ -230,12 +237,12 @@ const BookListPage = () => {
                 required
               />
 
-              <label htmlFor="authorBirthYear">Năm sinh:</label>
+              <label htmlFor="authorBirthYear">Tuổi:</label>
               <input
                 type="text"
                 id="authorBirthYear"
-                name="birthYear"
-                value={newAuthorData.birthYear}
+                name="age"
+                value={newAuthorData.age}
                 onChange={handleAuthorInputChange}
                 required
               />

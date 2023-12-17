@@ -17,10 +17,11 @@ const addSingleBook = gql`
 `
 
 const addSingleAuthor = gql`
-	mutation addSingleAuthorMutation($name: String, $age: Int) {
-		createAuthor(name: $name, age: $age) {
+	mutation addSingleAuthorMutation($author: AuthorInput!) {
+		createAuthor(author: $author) {
 			id
 			name
+      age
 		}
 	}
 `
