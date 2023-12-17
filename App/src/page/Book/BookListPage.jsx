@@ -1,41 +1,51 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useQuery, useMutation } from '@apollo/client'
+import { getBooks, searchBookByName, getAuthors } from '../../graphql-client/queries.js'
+import { addSingleBook, addSingleAuthor } from '../../graphql-client/mutations'
 
 const BookListPage = () => {
   const [books, setBooks] = useState([]);
+  const [authors, setAuthors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [booksPerPage] = useState(5);
   const [showForm, setShowForm] = useState(false); // State để kiểm soát hiển thị form
+  const { data } = useQuery(getBooks);
+  const { data: authorList } = useQuery(getAuthors);
 
+  let { data: data1 } = useQuery(searchBookByName, {
+    variables: { name: searchTerm },
+    skip: searchTerm === ''
+
+  });
   const [newBookData, setNewBookData] = useState({
-    title: '',
+    name: '',
     genre: '',
     publicationYear: '',
     author: '',
   });
 
   useEffect(() => {
-    const sampleBooks = [
-      { id: 1, title: 'Sách 1', author: 'Tác giả A' },
-      { id: 2, title: 'Sách 2', author: 'Tác giả B' },
-      { id: 3, title: 'Sách 3', author: 'Tác giả C' },
-      { id: 4, title: 'Sách 4', author: 'Tác giả D' },
-      { id: 5, title: 'Sách 5', author: 'Tác giả E' },
-      { id: 16, title: 'Sách 16', author: 'Tác giả F' },
-      { id: 17, title: 'Sách 17', author: 'Tác giả G' },
-      { id: 18, title: 'Sách 18', author: 'Tác giả H' },
-      { id: 19, title: 'Sách 19', author: 'Tác giả I' },
-      { id: 20, title: 'Sách 20', author: 'Tác giả J' },
-      { id: 21, title: 'Sách 21', author: 'Tác giả K' },
-      { id: 22, title: 'Sách 22', author: 'Tác giả L' },
-      { id: 23, title: 'Sách 23', author: 'Tác giả M' },
-      { id: 24, title: 'Sách 24', author: 'Tác giả N' },
-      { id: 25, title: 'Sách 25', author: 'Tác giả O' }
-      // Thêm dữ liệu sách ở đây
-    ];
-    setBooks(sampleBooks);
-  }, []);
+    setBooks(data?.books);
+  }, [data]);
+
+  useEffect(() => {
+    setAuthors(authorList?.authors);
+  }, [authorList]);
+
+
+  const [searchedBooks, setSearchedBooks] = useState([]);
+
+  useEffect(() => {
+    if (searchTerm !== '') {
+      setSearchedBooks(data1?.books);
+      console.log(data1?.books);
+    } else {
+      // Nếu searchTerm trở về rỗng, reset searchedBooks về mảng rỗng
+      setSearchedBooks([]);
+    }
+  }, [searchTerm]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -45,24 +55,33 @@ const BookListPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Xử lý thêm sách vào danh sách books
+    const { name, genre } = newBookData;
+    const authorId = newBookData.author;
     const newBook = {
       id: books.length + 1, // Đây là id tạm thời, bạn có thể tạo id theo cách khác
       ...newBookData,
     };
+    console.log(newBookData);
+    addBook({
+      variables: { book: { name, genre, authorId } },
+      refetchQueries: [{ query: getBooks }]
+    })
+
     setBooks([...books, newBook]);
     setShowForm(false); // Ẩn form sau khi thêm sách thành công
     setNewBookData({
-      title: '',
+      name: '',
       genre: '',
       publicationYear: '',
       author: '',
     });
   };
+  const [addBook, dataMutation] = useMutation(addSingleBook)
 
 
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
-  const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
+  const currentBooks = books?.slice(indexOfFirstBook, indexOfLastBook);
 
   const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -80,6 +99,8 @@ const BookListPage = () => {
   const handleAuthorSubmit = (e) => {
     e.preventDefault();
     // Xử lý thêm tác giả vào danh sách tác giả
+    const { name } = newAuthorData;
+    const age = parseInt(newAuthorData.age, 10)
     const newAuthor = {
       id: books.length + 1, // Đây là id tạm thời, bạn có thể tạo id theo cách khác
       ...newAuthorData,
@@ -90,7 +111,12 @@ const BookListPage = () => {
       name: '',
       birthYear: '',
     });
+    addAuthor({
+      variables: { author: { name, age } },
+      refetchQueries: [{ query: getAuthors }]
+    })
   };
+  const [addAuthor, dataMutationAuthor] = useMutation(addSingleAuthor)
 
 
   return (
@@ -104,19 +130,19 @@ const BookListPage = () => {
       />
       <ul>
         {currentBooks
-          .filter(book =>
-            book.title.toLowerCase().includes(searchTerm.toLowerCase())
+          ?.filter(book =>
+            book.name.toLowerCase().includes(searchTerm.toLowerCase())
           )
           .map(book => (
             <Link key={book.id} to={`/book/${book.id}`} onClick={() => { localStorage.setItem("bookId", book.id) }}>
               <li >
-                {book.title} - {book.author}
+                {book.name} - {book.author.name}
               </li>
             </Link>
           ))}
       </ul>
       <div>
-        {Array.from({ length: Math.ceil(books.length / booksPerPage) }, (_, i) => (
+        {Array.from({ length: Math.ceil(books?.length / booksPerPage) }, (_, i) => (
           <button key={i} onClick={() => paginate(i + 1)}>
             {i + 1}
           </button>
@@ -132,12 +158,12 @@ const BookListPage = () => {
           <div className="form-container">
             <form onSubmit={handleSubmit}>
               <h2>Thêm Sách</h2>
-              <label htmlFor="title">Tên sách:</label>
+              <label htmlFor="name">Tên sách:</label>
               <input
                 type="text"
-                id="title"
-                name="title"
-                value={newBookData.title}
+                id="name"
+                name="name"
+                value={newBookData.name}
                 onChange={handleInputChange}
                 required
               />
@@ -172,14 +198,19 @@ const BookListPage = () => {
               />
 
               <label htmlFor="author">Tác giả:</label>
-              <input
-                type="text"
+              <select
                 id="author"
                 name="author"
                 value={newBookData.author}
                 onChange={handleInputChange}
                 required
-              />
+              >
+                <option value="">Chọn tác giả</option>
+                {authors?.map(author => (
+                  <option key={author?.id} value={author?.id}>{author?.name}</option>
+                ))}
+              </select>
+
 
               <button type="submit" className="add-btn">
                 Thêm
@@ -206,12 +237,12 @@ const BookListPage = () => {
                 required
               />
 
-              <label htmlFor="authorBirthYear">Năm sinh:</label>
+              <label htmlFor="authorBirthYear">Tuổi:</label>
               <input
                 type="text"
                 id="authorBirthYear"
-                name="birthYear"
-                value={newAuthorData.birthYear}
+                name="age"
+                value={newAuthorData.age}
                 onChange={handleAuthorInputChange}
                 required
               />
