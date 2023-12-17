@@ -40,12 +40,12 @@ const BookListPage = () => {
   useEffect(() => {
     if (searchTerm !== '') {
       setSearchedBooks(data1?.books);
-      console.log(data1?.books);
+      setBooks(searchedBooks);
     } else {
       // Nếu searchTerm trở về rỗng, reset searchedBooks về mảng rỗng
-      setSearchedBooks([]);
+      setBooks(data?.books);
     }
-  }, [searchTerm]);
+  }, [data?.books, data1?.books, searchTerm, searchedBooks]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
