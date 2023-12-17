@@ -10,7 +10,7 @@ const BookListPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [booksPerPage] = useState(5);
-  const [showForm, setShowForm] = useState(false); // State để kiểm soát hiển thị form
+  const [showForm, setShowForm] = useState(false);
   const { data } = useQuery(getBooks);
   const { data: authorList } = useQuery(getAuthors);
 
@@ -58,17 +58,16 @@ const BookListPage = () => {
     const { name, genre } = newBookData;
     const authorId = newBookData.author;
     const newBook = {
-      id: books.length + 1, // Đây là id tạm thời, bạn có thể tạo id theo cách khác
+      id: books.length + 1,
       ...newBookData,
     };
-    console.log(newBookData);
     addBook({
       variables: { book: { name, genre, authorId } },
       refetchQueries: [{ query: getBooks }]
     })
 
     setBooks([...books, newBook]);
-    setShowForm(false); // Ẩn form sau khi thêm sách thành công
+    setShowForm(false);
     setNewBookData({
       name: '',
       genre: '',

@@ -5,13 +5,7 @@ import { useQuery } from '@apollo/client'
 import { getSingleBook } from '../../graphql-client/queries.js'
 import { useEffect, useState } from 'react';
 const BookDetail = () => {
-  // const book = {
-  //   id: 1,
-  //   name: 'Book name',
-  //   author: { name: 'Author Name', id: '1' },
-  //   genre: 'Genre',
-  //   publicationYear: 'Publication Year',
-  // };
+
   const [book, setBook] = useState(null);
   const bookId = localStorage.getItem("bookId");
   const { data } = useQuery(getSingleBook, {
