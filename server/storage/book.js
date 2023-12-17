@@ -25,12 +25,12 @@ class BookStore {
         query.name = { $regex: new RegExp(args.bookName, "i") };
       }
 
-      const limit = args.limit || 10;
+      /* const limit = args.limit || 10;
       const page = args.page || 1;
 
-      const startIndex = (page - 1) * limit;
+      const startIndex = (page - 1) * limit; */
 
-      return await Book.find(query).limit(limit).skip(startIndex);
+      return await Book.find(query);
     } catch (error) {
       console.error("Error fetching books:", error);
       throw error;
