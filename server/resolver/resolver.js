@@ -1,31 +1,24 @@
-const { books, authors } = require('../data/static')
+const BookStore = require("../storage/book");
+const AuthorStore = require("../storage/author");
 
 const resolvers = {
-  // QUERY
   Query: {
-    books: () => books,
-    book: (parent, args) => books.find(book => book.id.toString() === args.id),
-    authors: () => authors,
-    author: (parent, args) => authors.find(author => author.id.toString() === args.id),
-    bookSearch: (parent, args) => books.filter(book => book.name.toLowerCase().includes(args.name.toLowerCase()))
-
+    books: async (parent, args) => BookStore.fetchBooks(args),
+    book: async (parent, args) => BookStore.fetchBookById(args.id),
+    authors: async () => AuthorStore.fetchAuthors(),
+    author: async (parent, args) => AuthorStore.fetchAuthorById(args.id),
+    bookSearch: async (parent, args) => BookStore.searchBooks(args.name),
   },
   Book: {
-    author: (parent, args) => {
-      return authors.find(author => author.id === parent.authorId)
-    }
+    author: async (parent) => AuthorStore.fetchAuthorById(parent.authorId),
   },
   Author: {
-    books: (parent, args) => {
-      return books.filter(book => book.authorId === parent.id)
-    }
+    books: async (parent) => BookStore.fetchBooksByAuthorId(parent.id),
   },
   Mutation: {
-    createAuthor: (parent, args) => args,
-    createBook: (parent, args) => args
+    createAuthor: async (parent, args) => AuthorStore.createNewAuthor(args),
+    createBook: async (parent, args) => BookStore.createNewBook(args),
+  },
+};
 
-  }
-
-}
-
-module.exports = resolvers
+module.exports = resolvers;

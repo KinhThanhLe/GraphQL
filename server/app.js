@@ -1,9 +1,10 @@
-const express = require('express');
-const { ApolloServer } = require('apollo-server-express');
+const express = require("express");
+const { ApolloServer } = require("apollo-server-express");
 
 // Load schema & resolvers
-const typeDefs = require('./schema/schema');
-const resolvers = require('./resolver/resolver');
+const typeDefs = require("./schema/schema");
+const resolvers = require("./resolver/resolver");
+require("./configs/db").connect();
 
 async function startServer() {
   const server = new ApolloServer({
@@ -21,6 +22,6 @@ async function startServer() {
   );
 }
 
-startServer().catch(error => {
-  console.error('Error starting the server:', error);
+startServer().catch((error) => {
+  console.error("Error starting the server:", error);
 });
